@@ -1,0 +1,78 @@
+Public-sg → 22 my ip
+Private-sg → 22 public-sg
+Endpoint-sg → all traffic anywhere
+
+
+
+VPC
+endpoint-vpc --- 192.168.0.0/16
+Actions --- Edit dns host name --- enable
+
+Note : enable dns hostname, we can access page by dns end point.
+
+Subnets 
+public-subnet1		192.168.1.0/24
+public-subnet2		192.168.2.0/24
+public-subnet3		192.168.3.0/24
+
+Goto actions--- modify auto assign ip setting---auto assign ipv4--enable
+Only enable public
+No private,data
+
+Note : enable auto assign ipv4 its change ip private to public
+
+private-subnet1	192.168.4.0/24
+private-subnet2	192.168.5.0/24
+private-subnet3	192.168.6.0/24
+
+Internet gateway(igw)
+endpoint-igw --- attach to vpc
+
+Nat-gw
+endpoint-nat-gw ----- public subnet 1 ---- allocate elastic ip
+
+Route tables
+route-table-public --- attach--public--subnet association
+Attache--public--route--0.0.0.0/0---igw
+route-table-private ---- attach--private--subnet association
+Attach--private--route--0.0.0.0/0---nat-gw
+
+
+
+Endpoint creation
+Name : endpoint
+Service category : aws service
+Services : search s3 → select → interface
+Vpc : own vpc
+Additional setting : disable dns name
+Subnets: select all → private 
+Sg : endpoint -sg 
+Policy : pull access
+
+
+Instance → launch → t2.micro →own vpc →  public subnet → public → public-sg → own key
+Instance → launch → t2.micro → own vpc → private subnet → private → private-sg → own key → 
+
+IAM Role
+Private instance → actions → security → modify iam role : s3 full access
+
+
+Local
+cd .ssh
+cat id_rsa   → key file copy
+
+Public instance
+ssh ec2-user@public-instance-publicip
+cd .ssh
+vi id_rsa    → private key file paste
+
+ssh ec2-user@private-instance-privateip
+
+aws s3 ls
+
+#aws s3 ls --endpoint-url https://bucket.< end point dns name > 
+
+Note : remove *.
+
+aws s3 ls --endpoint-url https://bucket.vpce-0450e94826c1f3680-dd26vjhw-us-east-2c.s3.us-east-2.vpce.amazonaws.com
+
